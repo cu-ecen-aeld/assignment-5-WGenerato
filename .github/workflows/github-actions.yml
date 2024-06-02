@@ -20,14 +20,16 @@ jobs:
           ssh-private-key: ${{ secrets.Buildroot_Submodule_SSH_PRIVATE_KEY }}
 
       - name: Checkout submodules
-        run: git submodule update --init --recursive
+        run: |
+          git submodule update --init --recursive
+          git submodule status
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
 
-      - name: Debug - List directory structure
-        run: |
-          echo "Listing directory structure:"
-          ls -R
+      - name: Set permissions for base_external directory
+        run: chmod -R 755 base_external
+
+      # Add more steps as necessary
 
       - name: Set executable permissions for full-test.sh
         run: chmod +x ./full-test.sh

@@ -17,7 +17,7 @@ jobs:
 
       - uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.Buildroot_Submodule-SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.Buildroot_Submodule_SSH_PRIVATE_KEY }}
 
       - name: Checkout submodules
         run: git submodule update --init --recursive

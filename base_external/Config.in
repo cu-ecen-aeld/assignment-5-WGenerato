@@ -1,6 +1,6 @@
 menu "External packages"
 
-source "base_external/package/aesd-assignments/Config.in"
+source "/__w/assignment-4-WGenerato/assignment-4-WGenerato/base_external/Config.in"
 
 endmenu
 

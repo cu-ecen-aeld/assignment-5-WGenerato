@@ -1,6 +1,6 @@
 menu "External packages"
 
-source "/home/tt20/aesd-assignment-4/base_external/package/aesd-assignments/Config.in"
+source "base_external/package/aesd-assignments/Config.in"
 
 endmenu
 

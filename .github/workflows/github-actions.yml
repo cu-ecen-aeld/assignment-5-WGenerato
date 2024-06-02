@@ -1,16 +1,16 @@
 name: assignment-test
 on:
-    push:
-        tags-ignore:
-            - '*'
-        branches:
-            - '*'
+  push:
+    tags-ignore:
+      - '*'
+    branches:
+      - '*'
 jobs:
-    full-test:
-        container: cuaesd/aesd-autotest:assignment4-buildroot
-        runs-on: ubuntu-latest
-        timeout-minutes: 120
-        steps:
+  full-test:
+    container: cuaesd/aesd-autotest:assignment4-buildroot
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -23,8 +23,12 @@ jobs:
         run: git submodule update --init --recursive
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-            run: ./full-test.sh
-          - name: Cleanup
-            if: always()
-            run: |
-              ssh-add -D
+
+      - name: Run full test
+        run: ./full-test.sh
+
+      - name: Cleanup
+        if: always()
+        run: |
+          ssh-add -D
+

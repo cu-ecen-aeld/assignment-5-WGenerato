@@ -14,23 +14,28 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-          
-          
+
       - uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.Buildroot_Submodule_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.Buildroot_Submodule-SSH_PRIVATE_KEY }}
 
       - name: Checkout submodules
         run: git submodule update --init --recursive
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-                
+
+      - name: Debug - List directory structure
+        run: |
+          echo "Listing directory structure:"
+          ls -R
+
+      - name: Set executable permissions for full-test.sh
+        run: chmod +x ./full-test.sh
 
       - name: Run full test
         run: ./full-test.sh
 
       - name: Cleanup
         if: always()
-        run: |
-          ssh-add -D
+        run: ssh-add -D
 

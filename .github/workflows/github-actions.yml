@@ -11,30 +11,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
         with:
           submodules: recursive
 
-      - uses: webfactory/ssh-agent@v0.5.3
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.Buildroot_Submodule_SSH_PRIVATE_KEY }}
 
-      - name: Checkout submodules
-        run: |
-          git submodule update --init --recursive
-          git submodule status
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-
-      - name: Set permissions for base_external directory
-        run: chmod -R 755 base_external
-
-      # Add more steps as necessary
-
-      - name: Set executable permissions for full-test.sh
+      - name: Ensure full-test.sh is executable
         run: chmod +x ./full-test.sh
 
+      - name: Verify Submodule Initialization
+        run: |
+          git submodule update --init --recursive
+          ls -alh
+          ls -alh base_external/
+          ls -alh base_external/package/
+          ls -alh base_external/package/aesd-assignments/
+
       - name: Run full test
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         run: ./full-test.sh
 
       - name: Cleanup

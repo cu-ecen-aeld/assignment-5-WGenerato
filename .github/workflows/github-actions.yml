@@ -52,7 +52,7 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         run: |
           export BASE_DIR=$(pwd)
-          sed -i 's|source "base_external/package/aesd-assignments/Config.in"|source "${BASE_DIR}/base_external/package/aesd-assignments/Config.in"|' base_external/Config.in
+          sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"${BASE_DIR}/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
           ./full-test.sh
 
       - name: Cleanup

@@ -41,10 +41,19 @@ jobs:
       - name: Print base_external/package/aesd-assignments/Config.in
         run: cat base_external/package/aesd-assignments/Config.in
 
-      - name: Run full test
+      - name: Print Working Directory
+        run: pwd
+
+      - name: Print Environment Variables
+        run: printenv
+
+      - name: Run full test with absolute paths
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-        run: ./full-test.sh
+        run: |
+          export BASE_DIR=$(pwd)
+          sed -i 's|source "base_external/package/aesd-assignments/Config.in"|source "${BASE_DIR}/base_external/package/aesd-assignments/Config.in"|' base_external/Config.in
+          ./full-test.sh
 
       - name: Cleanup
         if: always()

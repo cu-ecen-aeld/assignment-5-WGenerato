@@ -24,6 +24,9 @@ jobs:
       - name: Ensure full-test.sh is executable
         run: chmod +x ./full-test.sh
 
+      - name: Ensure permissions for base_external
+        run: chmod -R 755 base_external
+
       - name: Verify Submodule Initialization
         run: |
           git submodule update --init --recursive
@@ -31,6 +34,12 @@ jobs:
           ls -alh base_external/
           ls -alh base_external/package/
           ls -alh base_external/package/aesd-assignments/
+
+      - name: Print base_external/Config.in
+        run: cat base_external/Config.in
+
+      - name: Print base_external/package/aesd-assignments/Config.in
+        run: cat base_external/package/aesd-assignments/Config.in
 
       - name: Run full test
         env:

@@ -1,12 +1,11 @@
 name: assignment-test
 on:
-  push:
-    tags-ignore:
-      - '*'
-    branches:
-      - '*'
+    push:
+        tags-ignore:
+            - '*'
+        branches:
+            - '*'
 jobs:
-
     full-test:
         container: cuaesd/aesd-autotest:assignment5-buildroot
         runs-on: ubuntu-latest

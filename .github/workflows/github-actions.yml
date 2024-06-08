@@ -6,56 +6,24 @@ on:
     branches:
       - '*'
 jobs:
-  full-test:
-    container: cuaesd/aesd-autotest:assignment4-buildroot
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.Buildroot_Submodule_SSH_PRIVATE_KEY }}
-
-      - name: Ensure full-test.sh is executable
-        run: chmod +x ./full-test.sh
-
-      - name: Ensure permissions for base_external
-        run: chmod -R 755 base_external
-
-      - name: Verify Submodule Initialization
-        run: |
-          git submodule update --init --recursive
-          ls -alh
-          ls -alh base_external/
-          ls -alh base_external/package/
-          ls -alh base_external/package/aesd-assignments/
-
-      - name: Print base_external/Config.in
-        run: cat base_external/Config.in
-
-      - name: Print base_external/package/aesd-assignments/Config.in
-        run: cat base_external/package/aesd-assignments/Config.in
-
-      - name: Print Working Directory
-        run: pwd
-
-      - name: Print Environment Variables
-        run: printenv
-
-      - name: Run full test with absolute paths
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-        run: |
-          export BASE_DIR=$(pwd)
-          sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"${BASE_DIR}/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-          ./full-test.sh
-
-      - name: Cleanup
-        if: always()
-        run: ssh-add -D
+    full-test:
+        container: cuaesd/aesd-autotest:assignment5-buildroot
+        runs-on: ubuntu-latest
+        timeout-minutes: 120
+        steps:
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            run: git submodule update --init --recursive
+          - uses: webfactory/ssh-agent@v0.5.3
+            with:
+                ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          - name: Run full test
+            env:
+              GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+            run: ./full-test.sh
+          - name: Cleanup
+            if: always()
+            run: |
+              ssh-add -D
 

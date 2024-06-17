@@ -28,7 +28,7 @@ jobs:
     - name: Set up Buildroot
       run: |
         cd buildroot
-        make aesd_qemu_defconfig
+        make BR2_EXTERNAL=../base_external defconfig
         make
 
     - name: Run QEMU and tests

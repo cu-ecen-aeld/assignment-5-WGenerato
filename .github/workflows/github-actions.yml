@@ -26,14 +26,14 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         
     - name: Ensure permissions for base_external
-      run: chmod -R 755 base_external
+       run: chmod -R 755 base_external
 
     - name: Set up Buildroot
       run: |
         cd buildroot
-    	sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
-    	make defconfig
-    	make
+        sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
+        make defconfig
+        make
 
     - name: Replace relative paths with absolute paths
       run: |

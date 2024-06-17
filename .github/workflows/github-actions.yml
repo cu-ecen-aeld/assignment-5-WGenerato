@@ -26,7 +26,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         
     - name: Ensure permissions for base_external
-       run: chmod -R 755 base_external
+      run: chmod -R 755 base_external
 
     - name: Set up Buildroot
       run: |

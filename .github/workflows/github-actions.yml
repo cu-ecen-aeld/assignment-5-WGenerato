@@ -49,10 +49,9 @@ jobs:
         # Run full-test.sh
         ./full-test.sh
       env:
-        PATH: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin:\$PATH"
+        PATH: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin:${{ env.PATH }}"
         CROSS_COMPILE: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin/aarch64-buildroot-linux-uclibc-"
 
     - name: Cleanup
       if: always()
       run: ssh-add -D
-

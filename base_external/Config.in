@@ -5,7 +5,7 @@ config BR2_PACKAGE_AESD_ASSIGNMENTS
     help
       Build and install aesd-assignments package.
 
-source "base_external/package/aesd-assignments/Config.in"
+source "package/aesd-assignments/Config.in"
 
 endmenu
 

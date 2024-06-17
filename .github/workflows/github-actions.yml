@@ -47,16 +47,23 @@ jobs:
       - name: Print Environment Variables
         run: printenv
 
-      - name: Run full test with absolute paths
+      - name: Adjust paths in external.mk
+        run: |
+          sed -i "s|include .*aesd-assignments.mk|include base_external/package/aesd-assignments/aesd-assignments.mk|" base_external/external.mk
+
+      - name: Adjust paths in Config.in
+        run: |
+          sed -i "s|source \".*Config.in\"|source \"base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
+
+      - name: Run make in aesd-assignments directory
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-        run: |
-          export BASE_DIR=$(pwd)
-          sed -i "s|include /home/tt20/aesd-assignment-4/base_external/package/aesd-assignments/aesd-assignments.mk|include ${BASE_DIR}/base_external/package/aesd-assignments/aesd-assignments.mk|" base_external/external.mk
-          sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"${BASE_DIR}/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-          make BR2_EXTERNAL=${BASE_DIR}/base_external defconfig
-          make
-          ./full-test.sh
+        run: make -C base_external/package/aesd-assignments
+
+      - name: Run full test
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+        run: ./full-test.sh
 
       - name: Cleanup
         if: always()

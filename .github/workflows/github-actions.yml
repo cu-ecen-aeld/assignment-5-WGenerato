@@ -1,71 +1,58 @@
 name: assignment-test
+
 on:
   push:
     tags-ignore:
       - '*'
     branches:
       - '*'
+
 jobs:
   full-test:
     container: cuaesd/aesd-autotest:assignment5-buildroot
     runs-on: ubuntu-latest
     timeout-minutes: 120
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.Buildroot_Submodule_SSH_PRIVATE_KEY }}
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
 
-      - name: Ensure full-test.sh is executable
-        run: chmod +x ./full-test.sh
+    - name: Set up SSH for Git
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Ensure permissions for base_external
-        run: chmod -R 755 base_external
+    - name: Set up Buildroot
+      run: |
+        cd buildroot
+        make BR2_EXTERNAL=../base_external defconfig
+        make
 
-      - name: Verify Submodule Initialization
-        run: |
-          git submodule update --init --recursive
-          ls -alh
-          ls -alh base_external/
-          ls -alh base_external/package/
-          ls -alh base_external/package/aesd-assignments/
+    - name: Replace relative paths with absolute paths
+      run: |
+        sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
+        sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
 
-      - name: Print base_external/Config.in
-        run: cat base_external/Config.in
+    - name: Run QEMU and tests
+      run: |
+        cd assignment-autotest/test/assignment5-buildroot
+        ./runqemu.sh &
+        sleep 60  # Adjust sleep as necessary to allow QEMU to start
 
-      - name: Print base_external/package/aesd-assignments/Config.in
-        run: cat base_external/package/aesd-assignments/Config.in
+        # Verify QEMU is running and aesdsocket is up
+        ssh-keygen -R "[localhost]:10022"  # Remove previous SSH keys for localhost:10022
+        sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"
 
-      - name: Print Working Directory
-        run: pwd
+        # Run full-test.sh
+        ./full-test.sh
+      env:
+        PATH: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin:\$PATH"
+        CROSS_COMPILE: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin/aarch64-buildroot-linux-uclibc-"
 
-      - name: Print Environment Variables
-        run: printenv
-
-      - name: Adjust paths in external.mk
-        run: |
-          sed -i "s|include .*aesd-assignments.mk|include base_external/package/aesd-assignments/aesd-assignments.mk|" base_external/external.mk
-
-      - name: Adjust paths in Config.in
-        run: |
-          sed -i "s|source \".*Config.in\"|source \"base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-
-      - name: Run make in aesd-assignments directory
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-        run: make -C base_external/package/aesd-assignments
-
-      - name: Run full test
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-        run: ./full-test.sh
-
-      - name: Cleanup
-        if: always()
-        run: ssh-add -D
+    - name: Cleanup
+      if: always()
+      run: ssh-add -D
 

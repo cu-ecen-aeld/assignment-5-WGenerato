@@ -1,28 +1,53 @@
 name: assignment-test
+
 on:
-    push:
-        tags-ignore:
-            - '*'
-        branches:
-            - '*'
+  push:
+    tags-ignore:
+      - '*'
+    branches:
+      - '*'
+
 jobs:
-    full-test:
-        container: cuaesd/aesd-autotest:assignment5-buildroot
-        runs-on: ubuntu-latest
-        timeout-minutes: 120
-        steps:
-          - uses: actions/checkout@v2
-          - name: Checkout submodules
-            run: git submodule update --init --recursive
-          - uses: webfactory/ssh-agent@v0.5.3
-            with:
-                ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          - name: Run full test
-            env:
-              GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-            run: ./full-test.sh
-          - name: Cleanup
-            if: always()
-            run: |
-              ssh-add -D
+  full-test:
+    container: cuaesd/aesd-autotest:assignment5-buildroot
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+
+    - name: Set up SSH for Git
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Set up Buildroot
+      run: |
+        cd buildroot
+        make aesd_qemu_defconfig
+        make
+
+    - name: Run QEMU and tests
+      run: |
+        cd assignment-autotest/test/assignment5-buildroot
+        ./runqemu.sh &
+        sleep 60  # Adjust sleep as necessary to allow QEMU to start
+
+        # Verify QEMU is running and aesdsocket is up
+        ssh-keygen -R "[localhost]:10022"  # Remove previous SSH keys for localhost:10022
+        sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"
+
+        # Run full-test.sh
+        ./full-test.sh
+      env:
+        PATH: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin:$PATH"
+        CROSS_COMPILE: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin/aarch64-buildroot-linux-uclibc-"
+
+    - name: Cleanup
+      if: always()
+      run: ssh-add -D
 

@@ -28,12 +28,12 @@ jobs:
     - name: Set up Buildroot
       run: |
         cd buildroot
-        make BR2_EXTERNAL=../base_external defconfig
+        make BR2_EXTERNAL=${{ github.workspace }}/base_external defconfig
         make
 
     - name: Run QEMU and tests
       run: |
-        cd assignment-autotest/test/assignment5-buildroot
+        cd ${{ github.workspace }}/assignment-autotest/test/assignment5-buildroot
         ./runqemu.sh &
         sleep 60  # Adjust sleep as necessary to allow QEMU to start
 
@@ -44,8 +44,8 @@ jobs:
         # Run full-test.sh
         ./full-test.sh
       env:
-        PATH: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin:$PATH"
-        CROSS_COMPILE: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin/aarch64-buildroot-linux-uclibc-"
+        PATH: "${{ github.workspace }}/buildroot/output/host/bin:$PATH"
+        CROSS_COMPILE: "${{ github.workspace }}/buildroot/output/host/bin/aarch64-buildroot-linux-uclibc-"
 
     - name: Cleanup
       if: always()

@@ -8,11 +8,35 @@ on:
       - '*'
 
 jobs:
+  build-and-push-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ghcr.io/${{ github.repository_owner }}/aesd-autotest:custom
+
   full-test:
-    container: cuaesd/aesd-autotest:assignment5-buildroot
+    needs: build-and-push-docker-image
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/aesd-autotest:custom
     runs-on: ubuntu-latest
     timeout-minutes: 120
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -24,7 +48,7 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
+        
     - name: Ensure permissions for base_external
       run: chmod -R 755 base_external
 
@@ -39,8 +63,8 @@ jobs:
 
     - name: Replace relative paths with absolute paths
       run: |
-        sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"\$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-        sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"\$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
+        sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
+        sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
 
     - name: Run QEMU and tests
       run: |
@@ -61,3 +85,4 @@ jobs:
     - name: Cleanup
       if: always()
       run: ssh-add -D
+

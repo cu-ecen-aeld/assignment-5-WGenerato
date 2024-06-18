@@ -1,25 +1,12 @@
-# Stage 1: Build Stage
-FROM cuaesd/aesd-autotest:assignment5-buildroot AS build
+Use the original image as the base
 
-# Install bash and sshpass for build and setup purposes
-RUN apt-get update \
-    && apt-get install -y bash sshpass \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+FROM cuaesd/aesd-autotest
+Install bash (or any other necessary tools)
 
-# Set bash as the default shell
+RUN apt-get update && apt-get install -y bash
+Set bash as the default shell
+
 SHELL ["/bin/bash", "-c"]
+Ensure all other necessary dependencies are installed
 
-# Additional build steps as needed
-
-# Stage 2: Final Stage
-FROM cuaesd/aesd-autotest:assignment5-buildroot
-
-# Copy artifacts from the build stage, if any
-COPY --from=build /path/to/artifacts /app
-
-# Optionally, copy scripts or configuration files
-
-# Set the default command for the container
-CMD ["bash"]
-
+RUN apt-get install -y sshpass

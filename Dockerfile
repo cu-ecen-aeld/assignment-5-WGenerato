@@ -5,8 +5,6 @@ FROM cuaesd/aesd-autotest:assignment5-buildroot
 RUN apt-get update && apt-get install -y bash
 
 # Set bash as the default shell
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/sh", "-c"]
 
-# Ensure all other necessary dependencies are installed
-RUN apt-get install -y sshpass
 

@@ -52,18 +52,6 @@ jobs:
     - name: Ensure permissions for base_external
       run: chmod -R 755 base_external
 
-    - name: Debug environment
-      shell: bash
-      run: |
-        echo "PATH=$PATH"
-        which sh || echo "sh not found"
-        which bash || echo "bash not found"
-        echo "Available shells:"
-        cat /etc/shells
-        
-    - name: Ensure full-test.sh is executable
-      run: chmod +x ./full-test.sh
-
     - name: Set up Buildroot
       shell: bash
       run: |
@@ -79,6 +67,7 @@ jobs:
       run: |
         sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
         sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
+    .github/workflows/github-actions.yml
 
     - name: Run QEMU and tests
       shell: bash

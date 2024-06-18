@@ -48,11 +48,21 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
+
     - name: Ensure permissions for base_external
       run: chmod -R 755 base_external
 
+    - name: Debug environment
+      shell: bash
+      run: |
+        echo "PATH=$PATH"
+        which sh || echo "sh not found"
+        which bash || echo "bash not found"
+        echo "Available shells:"
+        cat /etc/shells
+
     - name: Set up Buildroot
+      shell: bash
       run: |
         cd buildroot
         sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
@@ -62,11 +72,13 @@ jobs:
         FORCE_UNSAFE_CONFIGURE: 1
 
     - name: Replace relative paths with absolute paths
+      shell: bash
       run: |
         sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
         sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
 
     - name: Run QEMU and tests
+      shell: bash
       run: |
         cd assignment-autotest/test/assignment5-buildroot
         ./runqemu.sh &

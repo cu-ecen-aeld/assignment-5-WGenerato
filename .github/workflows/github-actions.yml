@@ -25,9 +25,15 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
+
     - name: Ensure permissions for base_external
       run: chmod -R 755 base_external
+
+    - name: Debug URL Access
+      run: |
+        URL=http://ftpmirror.gnu.org/gcc/gcc-13.3.0/gcc-13.3.0.tar.xz
+        echo "Testing access to $URL"
+        curl -v $URL -o gcc-13.3.0.tar.xz
 
     - name: Set up Buildroot
       run: |
@@ -41,7 +47,7 @@ jobs:
     - name: Replace relative paths with absolute paths
       run: |
         sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-        sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
+        sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments.mk\"|" base_external/external.mk
 
     - name: Run QEMU and tests
       run: |

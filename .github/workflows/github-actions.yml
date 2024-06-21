@@ -29,7 +29,6 @@ jobs:
 
       - name: Run QEMU
         run: |
-          cd assignment-autotest/test/assignment5-buildroot
           ./runqemu.sh &
           sleep 60  # Adjust sleep as necessary to allow QEMU to start
 

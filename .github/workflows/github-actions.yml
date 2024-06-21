@@ -8,39 +8,81 @@ on:
       - '*'
 
 jobs:
+  build-and-push-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ghcr.io/${{ github.repository_owner }}/aesd-autotest:custom
+
   full-test:
-    container: cuaesd/aesd-autotest:assignment5-buildroot
+    needs: build-and-push-docker-image
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/aesd-autotest:custom
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Checkout submodules
-        run: git submodule update --init --recursive
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
 
-      - uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Set up SSH for Git
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Ensure permissions for base_external
+      run: chmod -R 755 base_external
 
-      - name: Replace relative paths with absolute paths
-        run: |
-          sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-          sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments.mk\"|" base_external/external.mk
+    - name: Set up Buildroot
+      run: |
+        cd buildroot
+        sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
+        make defconfig
+        make
+      env:
+        FORCE_UNSAFE_CONFIGURE: 1
 
-      - name: Run QEMU
-        run: |
-          ./runqemu.sh &
-          sleep 60  # Adjust sleep as necessary to allow QEMU to start
+    - name: Replace relative paths with absolute paths
+      run: |
+        sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
+        sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
 
-      - name: Verify QEMU is running and aesdsocket is up
-        run: |
-          ssh-keygen -R "[localhost]:10022"  # Remove previous SSH keys for localhost:10022
-          sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"
+    - name: Run QEMU and tests
+      run: |
+        cd assignment-autotest/test/assignment5-buildroot
+        ./runqemu.sh &
+        sleep 60  # Adjust sleep as necessary to allow QEMU to start
 
-      - name: Run full test 
-        run: ./full-test.sh
+        # Verify QEMU is running and aesdsocket is up
+        ssh-keygen -R "[localhost]:10022"  # Remove previous SSH keys for localhost:10022
+        sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"
 
-      - name: Cleanup
-        if: always()
-        run: ssh-add -D
+        # Run full-test.sh
+        ./full-test.sh
+      env:
+        PATH: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin:${{ env.PATH }}"
+        CROSS_COMPILE: "/home/runner/work/assignment-5-WGenerato/assignment-5-WGenerato/buildroot/output/host/bin/aarch64-buildroot-linux-uclibc-"
+
+    - name: Cleanup
+      if: always()
+      run: ssh-add -D
 

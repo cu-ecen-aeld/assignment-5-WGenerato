@@ -32,10 +32,10 @@ jobs:
         
       - name: Set up Buildroot
         run: |
-        cd buildroot
-        sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
-        make defconfig
-        make
+          cd buildroot
+          sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
+          make defconfig
+          make
         
       - name: Build Project
         run: |

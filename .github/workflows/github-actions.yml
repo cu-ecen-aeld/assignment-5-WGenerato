@@ -28,7 +28,12 @@ jobs:
       - name: Replace relative paths with absolute paths
         run: |
           sed -i "s|source \"base_external/package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-          sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments.mk\"|" base_external/external.mk
+          sed -i "s|include \"base_external/package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
+        
+      - name: Build Project
+        run: |
+          make -C buildroot clean
+          make -C buildroot
         
       - name: Run QEMU
         shell: bash

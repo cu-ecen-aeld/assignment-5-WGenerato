@@ -26,31 +26,17 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           
       - name: Set permissions on base_external
-        run: |
-          sudo chmod -R 777 base_external
-          ls -l base_external
-          ls -l base_external/package/aesd-assignments  # Check permissions for the package directory
+        run: sudo chmod -R 777 base_external
         
-      - name: Adjust paths in Config.in and external.mk to use absolute paths
+      - name: Adjust paths in Config.in to use absolute paths
         run: |
           sed -i "s|source \"package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
           sed -i "s|include \"package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
-        
-      - name: Set up Buildroot
+
+      - name: Run build.sh script
         run: |
-          cd buildroot
-          sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=$(pwd)/../base_external|" Makefile
-          make defconfig
-        env:
-          FORCE_UNSAFE_CONFIGURE: 1 
-        
-      - name: Build Project
-        run: |
-          make -C buildroot clean
-          make -C buildroot
-          ls -l buildroot/output/target  # Check if expected files are generated
-        env:
-          FORCE_UNSAFE_CONFIGURE: 1 
+          chmod +x build.sh
+          ./build.sh
         
       - name: Run QEMU
         shell: bash
@@ -68,11 +54,9 @@ jobs:
         
       - name: Run full-test.sh
         shell: bash
-        run: |
-          ./full-test.sh
+        run: ./full-test.sh
         
       - name: Cleanup
         if: always()
-        run: |
-          ssh-add -D
+        run: ssh-add -D
 

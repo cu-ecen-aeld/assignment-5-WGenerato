@@ -36,11 +36,10 @@ jobs:
           sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
           make defconfig
           make
-          
         env:
           FORCE_UNSAFE_CONFIGURE: 1 
           
-       -name: Adjust paths in Config.in to use absolute paths
+      - name: Adjust paths in Config.in to use absolute paths
         run: |
           sed -i "s|source \"package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
           sed -i "s|include \"package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk

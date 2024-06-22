@@ -35,8 +35,8 @@ jobs:
           # Adjust paths in Config.in to use absolute paths
           sed -i "s|source \"package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
           sed -i "s|include \"package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
-          # Configure Buildroot
-        run: make -C buildroot BR2_EXTERNAL=$(pwd)/base_external defconfig BR2_DEFCONFIG=$(pwd)/base_external/configs/aesd_qemu_defconfig
+         
+          make -C buildroot BR2_EXTERNAL=$(pwd)/base_external defconfig BR2_DEFCONFIG=$(pwd)/base_external/configs/aesd_qemu_defconfig
         
       - name: Build Project
         run: |

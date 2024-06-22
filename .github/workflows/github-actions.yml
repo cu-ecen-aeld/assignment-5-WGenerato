@@ -28,6 +28,14 @@ jobs:
       - name: Set permissions on base_external
         run: sudo chmod -R 777 base_external
         
+      - name: Verify Submodule Initialization
+        run: |
+          git submodule update --init --recursive
+          ls -alh
+          ls -alh base_external/
+          ls -alh base_external/package/
+          ls -alh base_external/package/aesd-assignments/
+        
       - name: Adjust paths in Config.in to use absolute paths
         run: |
           export BASE_DIR=$(pwd)

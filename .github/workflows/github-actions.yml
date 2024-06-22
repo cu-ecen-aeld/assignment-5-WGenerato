@@ -46,6 +46,8 @@ jobs:
           make -C buildroot
           # Optional: Add more detailed debugging output if necessary
           ls -l buildroot/output/target  # Check if expected files are generated
+        env:
+          FORCE_UNSAFE_CONFIGURE: 1 
         
       - name: Run QEMU
         shell: bash

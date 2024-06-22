@@ -43,7 +43,7 @@ jobs:
       - name: Build Project
         run: |
           make -C buildroot clean
-          make -C buildroot
+          ./build.sh
           # Optional: Add more detailed debugging output if necessary
           ls -l buildroot/output/target  # Check if expected files are generated
         env:

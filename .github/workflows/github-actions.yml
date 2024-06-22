@@ -30,13 +30,12 @@ jobs:
           sudo chmod -R 777 base_external
           ls -l base_external  # Optional: Check permissions after setting
         
-      - name: Configure Buildroot
+      - name: Set up Buildroot
         run: |
-          # Adjust paths in Config.in to use absolute paths
-          sed -i "s|source \"package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
-          sed -i "s|include \"package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
-         
-          make -C buildroot BR2_EXTERNAL=$(pwd)/base_external defconfig BR2_DEFCONFIG=$(pwd)/base_external/configs/aesd_qemu_defconfig
+        cd buildroot
+        sed -i "s|BR2_EXTERNAL=../base_external|BR2_EXTERNAL=\$PWD/../base_external|" Makefile
+        make defconfig
+        make
         
       - name: Build Project
         run: |

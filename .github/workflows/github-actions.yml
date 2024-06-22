@@ -24,6 +24,11 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Set permissions on base_external
+        run: |
+          sudo chmod -R 777 base_external
+          ls -l base_external  # Optional: Check permissions after setting
         
       - name: Configure Buildroot
         run: |

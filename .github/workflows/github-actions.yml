@@ -28,11 +28,11 @@ jobs:
       - name: Set permissions on base_external
         run: |
           sudo chmod -R 777 base_external
-          ls -l base_external  # Optional: Check permissions after setting
+          ls -l base_external
+          ls -l base_external/package/aesd-assignments  # Check permissions for the package directory
         
       - name: Adjust paths in Config.in and external.mk to use absolute paths
         run: |
-          # Use absolute paths for the base_external configurations
           sed -i "s|source \"package/aesd-assignments/Config.in\"|source \"$(pwd)/base_external/package/aesd-assignments/Config.in\"|" base_external/Config.in
           sed -i "s|include \"package/aesd-assignments/aesd-assignments.mk\"|include \"$(pwd)/base_external/package/aesd-assignments/aesd-assignments.mk\"|" base_external/external.mk
         
@@ -47,8 +47,7 @@ jobs:
       - name: Build Project
         run: |
           make -C buildroot clean
-          ./build.sh
-          # Optional: Add more detailed debugging output if necessary
+          make -C buildroot
           ls -l buildroot/output/target  # Check if expected files are generated
         env:
           FORCE_UNSAFE_CONFIGURE: 1 

@@ -41,7 +41,6 @@ jobs:
       - name: Run QEMU
         shell: bash
         run: |
-        
           set -x
           ./runqemu.sh &
           sleep 60  # Adjust sleep as necessary to allow QEMU to start

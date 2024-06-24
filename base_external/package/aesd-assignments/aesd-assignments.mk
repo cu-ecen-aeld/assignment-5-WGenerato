@@ -22,15 +22,10 @@ define AESD_ASSIGNMENTS_INSTALL_TARGET_CMDS
 	$(INSTALL) -d 0755 $(TARGET_DIR)/etc/finder-app/conf/
 	$(INSTALL) -m 0755 $(@D)/conf/* $(TARGET_DIR)/etc/finder-app/conf/
 	$(INSTALL) -m 0755 $(@D)/assignment-autotest/test/assignment4/* $(TARGET_DIR)/bin
-	$(INSTALL)  -m 0755 $(@D)/aesdsocket $(TARGET_DIR)/usr/bin/
-	$(INSTALL) -d $(TARGET_DIR)/etc/init.d/
+	$(INSTALL) -m 0755 $(@D)/aesdsocket $(TARGET_DIR)/usr/bin/
 	$(INSTALL) -m 0755 $(@D)/server/aesdsocket-start-stop.sh $(TARGET_DIR)/etc/init.d/S99aesdsocket
 endef
 
-define AESD_ASSIGNMENTS_PREPARE_SOURCE
-    git clone $(AESD_ASSIGNMENTS_SITE) $(@D)
-    cd $(@D) && git checkout $(AESD_ASSIGNMENTS_VERSION)
-endef
 
 $(eval $(generic-package))
 

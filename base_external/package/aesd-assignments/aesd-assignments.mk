@@ -14,8 +14,7 @@ AESD_ASSIGNMENTS_SITE_METHOD = git
 AESD_ASSIGNMENTS_GIT_SUBMODULES = YES
 
 define AESD_ASSIGNMENTS_BUILD_CMDS
-         @echo "CROSS_COMPILE=$(CROSS_COMPILE)"
-	 $(TARGET_MAKE_ENV) $(MAKE1) -C $(@D) CROSS_COMPILE=$(TARGET_CROSS)
+	$(TARGET_MAKE_ENV) $(MAKE1) -C $(@D)
 endef
 
 define AESD_ASSIGNMENTS_INSTALL_TARGET_CMDS
@@ -27,7 +26,6 @@ define AESD_ASSIGNMENTS_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0755 $(@D)/server/aesdsocket-start-stop.sh $(TARGET_DIR)/etc/init.d/S99aesdsocket
 endef
 
-# Fetch the repository and checkout the specified commit
 define AESD_ASSIGNMENTS_PREPARE_SOURCE
     git clone $(AESD_ASSIGNMENTS_SITE) $(@D)
     cd $(@D) && git checkout $(AESD_ASSIGNMENTS_VERSION)

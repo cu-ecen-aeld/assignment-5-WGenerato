@@ -44,27 +44,4 @@ else
     echo "Missing conf/assignment.txt, no assignment to run"
     exit 1
 fi
-
-# Ensure the build is complete and rootfs.ext4 is available
-if [ ! -f "buildroot/output/images/rootfs.ext4" ]; then
-    echo "Error: rootfs.ext4 not found. Ensure the build is complete."
-    exit 1
-fi
-
-# Start QEMU
-echo "Starting QEMU"
-./runqemu.sh &
-
-# Wait for QEMU to start
-echo "Removing existing SSH key for localhost:10022"
-ssh-keygen -R "[localhost]:10022"
-
-echo "Waiting for QEMU to start..."
-while ! sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "echo QEMU is up"; do
-    echo "QEMU is not up yet, retrying in 10 seconds..."
-    sleep 10
-done
-
-echo "QEMU is up and running"
-
 exit ${unit_test_rc}

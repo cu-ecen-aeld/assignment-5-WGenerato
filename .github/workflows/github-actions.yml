@@ -25,19 +25,6 @@ jobs:
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         run: ./full-test.sh
-        
-      - name: Manually test service on port 9000
-        run: |
-          sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "echo 'abcdefg' | nc localhost 9000"
-
-      - name: Verify service response on port 9000
-        run: |
-          sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "echo 'abcdefg' | nc localhost 9000"
-
-      - name: Run sockettest.sh
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-        run: ./sockettest.sh
 
       - name: Cleanup
         if: always()

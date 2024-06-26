@@ -26,13 +26,6 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         run: ./full-test.sh
 
-      - name: Run QEMU
-        shell: bash
-        run: |
-          set -x
-          ./runqemu.sh &
-          sleep 60  # Adjust sleep as necessary to allow QEMU to start
-
           # Remove previous SSH keys for localhost:10022
           ssh-keygen -R "[localhost]:10022"
 

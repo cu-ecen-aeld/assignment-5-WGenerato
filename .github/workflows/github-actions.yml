@@ -21,24 +21,12 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-      - name: Run QEMU
-        run: |
-          set -x
-          ./runqemu.sh &
-          sleep 60  # Adjust sleep as necessary to allow QEMU to start
-          
-          # Verify QEMU is running and aesdsocket is up
-          ssh-keygen -R "[localhost]:10022"  # Remove previous SSH keys for localhost:10022
-          until sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"; do
-            echo "Waiting for QEMU to start..."
-            sleep 10
-          done
       
       - name: Run full test
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         run: ./full-test.sh
+
       
       - name: Cleanup
         if: always()

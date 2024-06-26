@@ -8,38 +8,26 @@ on:
 
 jobs:
   full-test:
-    container: cuaesd/aesd-autotest:assignment5-buildroot
-    runs-on: ubuntu-20.04  # Change to Ubuntu 20.04
+    runs-on: ubuntu-20.04
+    container:
+      image: cuaesd/aesd-autotest:assignment5-buildroot
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v2
-
+      
       - name: Checkout submodules
         run: git submodule update --init --recursive
-
+      
       - uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
+      
       - name: Run full test
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
         run: ./full-test.sh
 
-      - name: Wait for QEMU and check aesdsocket
-       
-        run: |
-          set -x
-          
-          # Remove previous SSH keys for localhost:10022
-          ssh-keygen -R "[localhost]:10022"
-          
-          # Wait for QEMU to be ready and check aesdsocket status
-          until sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"; do
-            echo "Waiting for QEMU to start..."
-            sleep 10
-          done
-
+      
       - name: Cleanup
         if: always()
         run: |

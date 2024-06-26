@@ -19,6 +19,21 @@ exec > >(tee -i -a "$logfile") 2> >(tee -i -a "$logfile" >&2)
 
 echo "Running test with user $(whoami)"
 
+# Start QEMU
+./runqemu.sh &
+
+# Allow QEMU some time to start up
+sleep 60  # Adjust this sleep duration as necessary
+
+# Remove previous SSH keys for localhost:10022
+ssh-keygen -R "[localhost]:10022"
+
+# Wait for QEMU to be ready and check aesdsocket status
+until sshpass -p root ssh -o StrictHostKeyChecking=no -p 10022 root@localhost "systemctl status aesdsocket"; do
+    echo "Waiting for QEMU to start..."
+    sleep 10
+done
+
 set +e
 
 # If there's a configuration for the assignment number, use this to look for
